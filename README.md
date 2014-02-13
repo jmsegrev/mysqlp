@@ -4,6 +4,10 @@ A node mysql wrapper with promises for coffeescript
 
 ## Install
 
+`npm install mysqlp`
+
+or
+
 `npm install jmsegrev/mysqlp`
 
 ## Usage
@@ -13,32 +17,27 @@ A node mysql wrapper with promises for coffeescript
 ```CoffeeScript
 mysqlp = require 'mysqlp'
 
-configuration = {
-  master: {
-    host: 'host_x',
-    database: 'database_x',
-    user: 'user_x',
+configuration =
+  master:
+    host: 'host_x'
+    database: 'database_x'
+    user: 'user_x'
     password: 'password_x'
-  },
-  slave1: {
-    host: 'host_x',
-    database: 'database_x',
-    user: 'user_x',
+  slave1: 
+    host: 'host_x'
+    database: 'database_x'
+    user: 'user_x'
     password: 'password_x'
-  },
-  slave2: {
-    host: 'host_x',
-    database: 'database_x',
-    user: 'user_x',
+  slave2: 
+    host: 'host_x'
+    database: 'database_x'
+    user: 'user_x'
     password: 'password_x'
-  },
-  namex: {
-    host: 'host_x',
-    database: 'database_x',
-    user: 'user_x',
+  namex: 
+    host: 'host_x'
+    database: 'database_x'
+    user: 'user_x'
     password: 'password_x'
-  }
-}
 
 mysqlp.config(configuration)
 ```
@@ -59,7 +58,6 @@ mysqlp.connect('slave')
     connection.query('select * from table_x where column_x = ?', [1]) 
       .spread (rows, fields) ->
         console.log rows
-
     .finally ->
       connection.end()
 ```
@@ -69,24 +67,21 @@ mysqlp.connect('slave')
 ```CoffeeScript
 mysqlp.connect('master') 
   .then (connection) ->
+  
     connection.begin () ->
-
       @query('SELECT * FROM table_y WHERE column_y > ?', [42]) 
-        .spread (rows, fields) => # important to preserve context 
-
+        .spread (rows, fields) => # important to preserve context
+        
           if rows.length > 0
-
             @query('UPDATE table_z SET column_z = ?', ['anything'])
               .spread (rows, fields) => # important to preserve context 
-  
+              
                 if rows.affectedRows is 1
                   @commit()
                 else
                   @rollback() 
           else
             @rollback() 
-
-
     .finally ->
       connection.end()
 ```
