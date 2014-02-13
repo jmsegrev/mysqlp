@@ -9,7 +9,7 @@ mysqlp
 
 ## Configuration
 
-`
+```CoffeeScript
 mysqlp = require 'mysqlp'
 
 configuration = {
@@ -40,7 +40,7 @@ configuration = {
 }
 
 mysqlp.config(configuration)
-`
+```
 
 All the connection configurations will be added to a mysql.poolCluster.
 The slave* connections will be fetched with the default cluster mysql.poolCluster 
@@ -49,7 +49,7 @@ will be used directly.
 
 ## Queries 
 
-`
+```CoffeeScript
 #The slave mysql.cluster will be used to connect
 mysqlp.connect('slave') # slave will return the promise for the round robin selected configuration connection
   .then (connection) ->
@@ -60,11 +60,11 @@ mysqlp.connect('slave') # slave will return the promise for the round robin sele
 
     .finally ->
       connection.end()
-`
+```
 
 ## Transactions
 
-`
+```CoffeeScript
 mysqlp.connect('master') 
   .then (connection) ->
     connection.begin () ->
@@ -87,5 +87,5 @@ mysqlp.connect('master')
 
     .finally ->
       connection.end()
-
+```
 
