@@ -1,0 +1,17 @@
+{
+  "name": "mysqlp",
+  "version": "0.0.1",
+  "description": "Mysql wrapper with promises",
+  "main": "index.js",
+  "keywords": [
+    "mysql",
+    "promises",
+    "bluebird"
+  ],
+  "author": "jmsegrev",
+  "license": "BSD",
+  "dependencies": {
+    "mysql": "~2.0.1",
+    "bluebird": "~1.0.3"
+  }
+}
