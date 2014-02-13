@@ -1,13 +1,14 @@
-mysqlp
-------
+# mysqlp
 
-# Install
+A node mysql wrapper with promises for coffeescript
+
+## Install
 
 `npm install jmsegrev/mysqlp`
 
-# Usage
+## Usage
 
-## Configuration
+### Configuration
 
 ```CoffeeScript
 mysqlp = require 'mysqlp'
@@ -47,14 +48,15 @@ The slave* connections will be fetched with the default cluster mysql.poolCluste
 selector 'RR' (Round-Robin). Any other connection configuration (e.g. master, namex, whateveryouwant )
 will be used directly.
 
-## Queries 
+### Queries 
 
 ```CoffeeScript
-#The slave mysql.cluster will be used to connect
-mysqlp.connect('slave') # slave will return the promise for the round robin selected configuration connection
+# The slave mysql.cluster will be used to connect
+# Slave will return the promise for the connection Round-Robin selected
+mysqlp.connect('slave') 
   .then (connection) ->
     # same as mysql connection.query
-    connection.query('select username from users where user_id=?', [1]) 
+    connection.query('select * from table_x where column_x = ?', [1]) 
       .spread (rows, fields) ->
         console.log rows
 
@@ -62,20 +64,20 @@ mysqlp.connect('slave') # slave will return the promise for the round robin sele
       connection.end()
 ```
 
-## Transactions
+### Transactions
 
 ```CoffeeScript
 mysqlp.connect('master') 
   .then (connection) ->
     connection.begin () ->
 
-      @query('SELECT * FROM table_x WHERE column_a > ?', [42]) 
-        .spread (rows, fields) => # nested queries will need to bind this on previous context
+      @query('SELECT * FROM table_y WHERE column_y > ?', [42]) 
+        .spread (rows, fields) => # important to preserve context 
 
           if rows.length > 0
 
-            @query('UPDATE table_z SET column_b = ?', ['anything'])
-              .spread (rows, fields) =>
+            @query('UPDATE table_z SET column_z = ?', ['anything'])
+              .spread (rows, fields) => # important to preserve context 
   
                 if rows.affectedRows is 1
                   @commit()
