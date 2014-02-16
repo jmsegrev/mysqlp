@@ -1,6 +1,6 @@
 {
   "name": "mysqlp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mysql wrapper with promises",
   "main": "index.js",
   "keywords": [

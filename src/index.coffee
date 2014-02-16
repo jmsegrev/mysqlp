@@ -9,8 +9,8 @@ connectionWrapper = (connection, poolCluster) ->
 
     query: (sql, values) ->
 
-      return (Promise.promisify connection.query, connection) sql, values
-
+      promise = (Promise.promisify connection.query, connection) sql, values
+      return promise.bind(@)
 
 
     begin: (callback) ->
@@ -38,18 +38,18 @@ connectionWrapper = (connection, poolCluster) ->
 
       transaction.query = (sql, values) ->
         self.query sql, values
-          .catch (err) =>
+          .bind(@)
+          .catch (err) ->
             @rollback()
             console.log 'Begin query error', err.message
 
 
       connection.beginTransaction (err) ->
-        transaction.callback = callback
-        transaction.callback()
+        callback.call transaction
 
       return transactionDeferred.promise
 
-    end: () ->
+    end: ->
       poolCluster.end()
 
 
@@ -73,15 +73,16 @@ module.exports =
     if group is 'slave'
       #TODO set pool selection to be configurable 
       pool = @_poolCluster.of group.toLowerCase() + '*'
-      getConnection = Promise.promisify pool.getConnection, pool
-      getConnection()
-        .then (connection) =>
-          return connectionWrapper(connection, @_poolCluster)
+      promise = (Promise.promisify pool.getConnection, pool)()
 
     else
       getConnection = Promise.promisify @_poolCluster.getConnection, @_poolCluster
-      getConnection(group.toLowerCase())
-        .then (connection) =>
-          return connectionWrapper(connection, @_poolCluster)
+      promise = getConnection(group.toLowerCase())
+
+    promise
+      .bind(@)
+      .then (connection) ->
+        return connectionWrapper(connection, @_poolCluster)
+  
     
  

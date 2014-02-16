@@ -58,8 +58,13 @@ mysqlp.connect('slave')
     connection.query('select * from table_x where column_x = ?', [1]) 
       .spread (rows, fields) ->
         console.log rows
-    .finally ->
-      connection.end()
+
+        # you can nest queries
+        @query('select * from table_x where column_x = ?', [1]) 
+          .spread (rows, fields) ->
+            console.log rows
+
+            connection.end()
 ```
 
 ### Transactions
@@ -70,11 +75,11 @@ mysqlp.connect('master')
   
     connection.begin () ->
       @query('SELECT * FROM table_y WHERE column_y > ?', [42]) 
-        .spread (rows, fields) => # important to preserve context
+        .spread (rows, fields) ->
         
           if rows.length > 0
             @query('UPDATE table_z SET column_z = ?', ['anything'])
-              .spread (rows, fields) => # important to preserve context 
+              .spread (rows, fields) ->
               
                 if rows.affectedRows is 1
                   @commit()

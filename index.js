@@ -10,7 +10,9 @@
     var db;
     return db = {
       query: function(sql, values) {
-        return (Promise.promisify(connection.query, connection))(sql, values);
+        var promise;
+        promise = (Promise.promisify(connection.query, connection))(sql, values);
+        return promise.bind(this);
       },
       begin: function(callback) {
         var self, transaction, transactionDeferred;
@@ -37,16 +39,13 @@
           }
         };
         transaction.query = function(sql, values) {
-          return self.query(sql, values)["catch"]((function(_this) {
-            return function(err) {
-              _this.rollback();
-              return console.log('Begin query error', err.message);
-            };
-          })(this));
+          return self.query(sql, values).bind(this)["catch"](function(err) {
+            this.rollback();
+            return console.log('Begin query error', err.message);
+          });
         };
         connection.beginTransaction(function(err) {
-          transaction.callback = callback;
-          return transaction.callback();
+          return callback.call(transaction);
         });
         return transactionDeferred.promise;
       },
@@ -72,23 +71,17 @@
       return _results;
     },
     connect: function(group) {
-      var getConnection, pool;
+      var getConnection, pool, promise;
       if (group === 'slave') {
         pool = this._poolCluster.of(group.toLowerCase() + '*');
-        getConnection = Promise.promisify(pool.getConnection, pool);
-        return getConnection().then((function(_this) {
-          return function(connection) {
-            return connectionWrapper(connection, _this._poolCluster);
-          };
-        })(this));
+        promise = (Promise.promisify(pool.getConnection, pool))();
       } else {
         getConnection = Promise.promisify(this._poolCluster.getConnection, this._poolCluster);
-        return getConnection(group.toLowerCase()).then((function(_this) {
-          return function(connection) {
-            return connectionWrapper(connection, _this._poolCluster);
-          };
-        })(this));
+        promise = getConnection(group.toLowerCase());
       }
+      return promise.bind(this).then(function(connection) {
+        return connectionWrapper(connection, this._poolCluster);
+      });
     }
   };
 
